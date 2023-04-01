@@ -1,9 +1,9 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, redirect, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 
-import { fetchUpdateProfile, setsIsLoggedIn } from '../../store/userSlice';
+import { fetchUpdateProfile, removeError } from '../../store/userSlice';
 import { useAppDispatch, useAppSelector } from '../type/hooks';
 
 import classes from './Profile.module.scss';
@@ -20,7 +20,8 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const user: any = useAppSelector((state) => state.user.user);
-  console.log('user', user);
+
+  const error = useAppSelector((state) => state.user.error);
 
   const {
     register,
@@ -34,17 +35,27 @@ const Profile = () => {
       username: user.username,
       email: user.email,
       password: '',
-      image: '',
+      image: user.image || null,
     },
   });
 
-  console.log('valid profile form=', isValid);
+  React.useEffect(() => {
+    if (error === 'username') {
+      setError('username', { type: 'custom', message: 'username is already taken' });
+    }
+    if (error === 'email') {
+      setError('email', { type: 'custom', message: 'email is already taken' });
+    }
+    if (error === 'none') {
+      dispatch(removeError());
+      navigate('/articles');
+      message.success('All changes saved');
+    }
+  }, [error]);
 
   const onSubmit = handleSubmit((data) => {
     const changedData = Object.fromEntries(Object.entries(data).filter(([key, value]) => value !== ''));
     dispatch(fetchUpdateProfile(changedData));
-    message.success('All changes saved');
-    navigate('/articles');
   });
 
   const url =
@@ -124,17 +135,7 @@ const Profile = () => {
             style={errors.image ? { border: '1px solid red' } : { border: '1px solid #d9d9d9' }}
             type="text"
             placeholder="Avatar image"
-            {...register('image', {
-              //   validate: validURL,
-              //   minLength: {
-              //     value: 6,
-              //     message: 'Your password needs to be at least 6 characters.',
-              //   },
-              //   maxLength: {
-              //     value: 40,
-              //     message: 'Your password needs to be max 40 characters.',
-              //   },
-            })}
+            {...register('image', {})}
           ></input>
           <img
             className={classes.checkImg}

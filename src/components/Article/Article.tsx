@@ -1,23 +1,17 @@
 import React from 'react';
-import { Routes, Route, Link, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import ReactDom from 'react-dom';
 import moment from 'moment';
+import { message, Popconfirm } from 'antd';
 
-import { fetchSoloArticle } from '../../store/articleSlice';
+import { fetchDeletePost, fetchSetLike, fetchRemoveLike } from '../../store/singleArticleSlice';
 import { useAppDispatch, useAppSelector } from '../type/hooks';
 
 import classes from './Article.module.scss';
+import './Ant.css';
 
 const Article = () => {
   const dispatch = useAppDispatch();
-  //   const { slug } = useParams();
-
-  //   React.useEffect(() => {
-  //     if (slug) {
-  //       dispatch(fetchSoloArticle(slug));
-  //     }
-  //   }, [slug]);
 
   function setDate(date: string) {
     if (date) {
@@ -25,20 +19,74 @@ const Article = () => {
       return format;
     }
   }
+  const navigate = useNavigate();
+
+  const confirm = () => {
+    dispatch(fetchDeletePost(currentArticle.slug)).then(() => navigate('/articles'));
+    message.success('Article removed!');
+  };
+
+  const [checked, setChecked] = React.useState(false);
+  const [likeCounter, setLikeCounter] = React.useState(0);
 
   const currentArticle = useAppSelector((state) => state.article.currentArticle);
+  const username = useAppSelector((state) => state.user.user.username);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+
   console.log('from article', currentArticle);
+
+  const deleteBtn =
+    currentArticle?.author?.username === username && isLoggedIn ? (
+      <>
+        <Popconfirm
+          className={classes.ant_popover}
+          placement="bottom"
+          title="Delete the article"
+          description="Are you sure to delete this article?"
+          onConfirm={confirm}
+          okText="Yes"
+          cancelText="No"
+        >
+          <button className={classes.delete}>Delete</button>
+        </Popconfirm>
+        <Link to="edit">
+          <button className={classes.edit}>Edit</button>
+        </Link>
+      </>
+    ) : null;
+
+  const handleLikeChange = () => {
+    setChecked((checked) => !checked);
+
+    if (!checked) {
+      setLikeCounter((cur) => cur + 1);
+      dispatch(fetchSetLike(currentArticle.slug));
+    }
+    if (checked) {
+      setLikeCounter((cur) => cur - 1);
+      dispatch(fetchRemoveLike(currentArticle.slug));
+    }
+  };
+
+  React.useEffect(() => {
+    setChecked(currentArticle.favorited);
+  }, []);
 
   return (
     <>
-      {/* <p>{currentArticle.slug}</p> */}
       <div className={classes.Article}>
         <div className={classes.wrapper}>
           <div className={classes.title}>
             <p className={classes.title__text}>{currentArticle?.title} </p>
             <label>
-              <input type="checkbox" className={classes.like} />
-              <span>{currentArticle?.favoritesCount}</span>
+              <input
+                type="checkbox"
+                className={classes.like}
+                checked={checked}
+                onChange={handleLikeChange}
+                disabled={!isLoggedIn}
+              />
+              <span>{currentArticle?.favoritesCount ? currentArticle?.favoritesCount + likeCounter : likeCounter}</span>
             </label>
           </div>
           <ul className={classes.tag__list}>
@@ -53,15 +101,19 @@ const Article = () => {
 
           <p className={classes.description}>{currentArticle?.description}</p>
           <div>
-            <ReactMarkdown>{currentArticle?.body}</ReactMarkdown>
+            <ReactMarkdown>{currentArticle.body}</ReactMarkdown>
           </div>
         </div>
-        <div className={classes.user}>
-          <div className={classes.user__wrapper}>
-            <p className={classes.user__name}>{currentArticle?.author?.username}</p>
-            <p className={classes.user__date}>{setDate(currentArticle?.updatedAt)}</p>
+        <div className={classes.userinfo}>
+          <div className={classes.user}>
+            <div className={classes.user__wrapper}>
+              <p className={classes.user__name}>{currentArticle?.author?.username}</p>
+              <p className={classes.user__date}>{setDate(currentArticle?.updatedAt)}</p>
+            </div>
+
+            <img className={classes.user__avatar} src={currentArticle?.author?.image} alt="user_avatar" />
           </div>
-          <img className={classes.user__avatar} src={currentArticle?.author?.image} alt="user_avatar" />
+          <div className={classes.user__buttons}>{deleteBtn}</div>
         </div>
       </div>
     </>

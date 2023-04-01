@@ -1,12 +1,11 @@
 import React from 'react';
-import { LoadingOutlined } from '@ant-design/icons';
 import { Pagination } from 'antd';
-import { Routes, Route, Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../type/hooks';
 import ShortArticle from '../ShortArticle/ShortArticle';
 import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
-import { fetchArticles, setCurrentPage } from '../../store/articleSlice';
+import { fetchArticles } from '../../store/articleSlice';
 
 import classes from './AllArticles.module.scss';
 

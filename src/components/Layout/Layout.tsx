@@ -1,47 +1,32 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
-import { Pagination, message, Popconfirm } from 'antd';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 
-import { setError, fetchUser, setsIsLoggedOut } from '../../store/userSlice';
+import { removeError, fetchUser, setsIsLoggedOut } from '../../store/userSlice';
 import { useAppDispatch, useAppSelector } from '../type/hooks';
-import { fetchArticles, setCurrentPage } from '../../store/articleSlice';
-import Footer from '../Footer/Footer';
+import { fetchArticles } from '../../store/articleSlice';
 
 import classes from './Layout.module.scss';
 
 const Layout: React.FC = () => {
-  const total: number = useAppSelector((state) => state.article.total);
-  const loading: boolean = useAppSelector((state) => state.article.loading);
-  const currentPage: number = useAppSelector((state) => state.article.currentPage);
-
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const userLoading = useAppSelector((state) => state.user.userLoading);
+  const navigate = useNavigate();
 
   const dispatch = useAppDispatch();
   React.useEffect(() => {
     dispatch(fetchUser());
   }, []);
 
-  const user: any = useAppSelector((state) => state.user.user);
+  const user = useAppSelector((state) => state.user.user);
 
   const handleLogOut = () => {
     dispatch(setsIsLoggedOut());
     localStorage.clear();
-    dispatch(setError());
+    dispatch(removeError());
     message.success('You have been logged out');
+    dispatch(fetchArticles(0)).then(() => navigate('/articles'));
   };
-
-  // const confirm = (e: React.MouseEvent<HTMLElement> | undefined) => {
-  //   console.log(e);
-  //   message.success('Click on Yes');
-  // };
-
-  // const cancel = (e: React.MouseEvent<HTMLElement> | undefined) => {
-  //   console.log(e);
-  //   message.error('Click on No');
-  // };
-
-  console.log('image', user.image);
 
   if (!userLoading) {
     if (!isLoggedIn) {
@@ -64,7 +49,6 @@ const Layout: React.FC = () => {
           <main className={classes.main}>
             <Outlet />
           </main>
-          {/* <Footer /> */}
         </>
       );
     }
@@ -76,7 +60,7 @@ const Layout: React.FC = () => {
           </Link>
 
           <div className={classes.wrapper}>
-            <Link to="/sign-up">
+            <Link to="/new-article">
               <button className={classes.create_article}>Create article</button>
             </Link>
             <div className={classes.username}>
@@ -92,27 +76,15 @@ const Layout: React.FC = () => {
             </div>
 
             <Link to="/articles">
-              {/* <Popconfirm
-                title="Delete the task"
-                description="Are you sure you want to log out?"
-                onConfirm={confirm}
-                onCancel={cancel}
-                okText="Yes"
-                cancelText="No"
-                okType="primary"
-              > */}
-              {/* <button className={`${classes.log_out} ${classes.log_out_hidden}`}>clcik</button> */}
               <button className={classes.log_out} onClick={handleLogOut}>
                 Log out
               </button>
-              {/* </Popconfirm> */}
             </Link>
           </div>
         </header>
         <main className={classes.main}>
           <Outlet />
         </main>
-        {/* <Footer /> */}
       </>
     );
   } else return <div></div>;

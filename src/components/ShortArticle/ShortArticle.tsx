@@ -1,12 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
-// import isImageURL from 'image-url-validator';
+
+import { fetchSetLike, fetchRemoveLike } from '../../store/singleArticleSlice';
+import { useAppDispatch, useAppSelector } from '../type/hooks';
 
 import classes from './ShortArticle.module.scss';
 
 const ShortArticle = (props: any) => {
+  const [checked, setChecked] = React.useState(false);
+  const [likeCounter, setLikeCounter] = React.useState(0);
+
   const currentArticle = props.article;
+  const dispatch = useAppDispatch();
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
   function setDate(date: string) {
     if (date) {
@@ -14,32 +21,23 @@ const ShortArticle = (props: any) => {
       return format;
     }
   }
-  // console.log('props', props.article);
-  function getImage(url: string) {
-    return new Promise(function (resolve, reject) {
-      const img = new Image();
-      img.onload = function () {
-        resolve(url);
-      };
-      img.onerror = function () {
-        reject(url);
-      };
-      img.src = url;
-    });
-  }
 
-  function isImgUrl(url: string) {
-    const img = new Image();
-    img.src = url;
-    return new Promise((resolve) => {
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-    });
-  }
+  const handleChange = () => {
+    setChecked((checked) => !checked);
 
-  // async function CheckImg() {
-  //   await isImageURL('https://via.placeholder.com/300/09f/fff.png');
-  // }
+    if (!checked) {
+      setLikeCounter((cur) => cur + 1);
+      dispatch(fetchSetLike(props.article.slug));
+    }
+    if (checked) {
+      setLikeCounter((cur) => cur - 1);
+      dispatch(fetchRemoveLike(props.article.slug));
+    }
+  };
+
+  React.useEffect(() => {
+    setChecked(props.article.favorited);
+  }, []);
 
   return (
     <>
@@ -51,8 +49,14 @@ const ShortArticle = (props: any) => {
               <Link to={`/articles/${props.article.slug}`}>{props.article.title}</Link>
             </p>
             <label>
-              <input type="checkbox" className={classes.like} />
-              <span>{currentArticle.favoritesCount}</span>
+              <input
+                type="checkbox"
+                checked={checked}
+                className={classes.like}
+                onChange={handleChange}
+                disabled={!isLoggedIn}
+              />
+              <span>{currentArticle.favoritesCount + likeCounter}</span>
             </label>
           </div>
           <ul className={classes.tag__list}>
@@ -77,7 +81,6 @@ const ShortArticle = (props: any) => {
             className={classes.user__avatar}
             src={currentArticle.author?.image}
             alt="user_avatar"
-            // onLoad={() => console.log('load')}
             onError={(e) => (e.currentTarget.src = 'https://cdn-icons-png.flaticon.com/512/147/147140.png')}
           />
         </div>

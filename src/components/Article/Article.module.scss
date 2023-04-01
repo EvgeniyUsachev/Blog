@@ -132,6 +132,7 @@ svg {
 .user {
   display: flex;
   flex-direction: row;
+  justify-content: end;
   &__avatar {
     width: 46px;
     height: 46px;
@@ -155,6 +156,49 @@ svg {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+  }
+  &__buttons {
+    display: flex;
+    justify-content: end;
+  }
+}
+// .userinfo {
+//   display: flex;
+// }
+
+.delete,
+.edit {
+  width: 78px;
+  height: 31px;
+  margin-right: 17px;
+  font-size: 14px;
+  display: block;
+  margin-top: 30px;
+  text-align: center;
+  background-color: inherit;
+  border: none;
+  border-radius: 5px;
+  font-weight: 400;
+  transition: 0.4s;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid red;
+  color: red;
+  &:hover {
+    background-color: red;
+    color: white;
+    border: none;
+  }
+}
+
+.edit {
+  border: 1px solid #52c41a;
+  color: #52c41a;
+  margin-right: 0;
+  &:hover {
+    background-color: #52c41a;
+    color: white;
+    border: none;
   }
 }
 

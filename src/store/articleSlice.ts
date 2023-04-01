@@ -3,14 +3,22 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 export const fetchArticles = createAsyncThunk('articles/fetchArticles', async (page: number) => {
-  const response = await axios.get(`https://blog.kata.academy/api/articles?limit=5&offset=${page}`);
-  console.log('hello from slice article getch', response.data);
+  const response = await axios.get(`https://blog.kata.academy/api/articles?limit=5&offset=${page}`, {
+    headers: {
+      Authorization: `Token ${localStorage.getItem('token')}`,
+      'Content-Type': 'application/json',
+    },
+  });
   return response.data;
 });
 
 export const fetchSoloArticle = createAsyncThunk('articles/fetchSoloArticle', async (slug: string) => {
-  const response = await axios.get(`https://blog.kata.academy/api/articles/${slug}`);
-  console.log(response.data.article);
+  const response = await axios.get(`https://blog.kata.academy/api/articles/${slug}`, {
+    headers: {
+      Authorization: `Token ${localStorage.getItem('token')}`,
+      'Content-Type': 'application/json',
+    },
+  });
   return response.data.article;
 });
 

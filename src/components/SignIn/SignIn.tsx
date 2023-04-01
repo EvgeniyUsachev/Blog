@@ -1,10 +1,11 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, redirect, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 
+import { fetchArticles } from '../../store/articleSlice';
 import { fetchLogin, setsIsLoggedIn } from '../../store/userSlice';
-import { useAppDispatch, useAppSelector } from '../type/hooks';
+import { useAppDispatch } from '../type/hooks';
 
 import classes from './SignIn.module.scss';
 
@@ -20,25 +21,16 @@ const SignIn = () => {
 
   const {
     register,
-    formState: { errors, isValid },
+    formState: { errors },
     handleSubmit,
-    reset,
-    watch,
   } = useForm<FormValues>({ mode: 'onBlur' });
 
   const onSubmit = handleSubmit((data) => {
-    // const { email, password } = data;
-    // const authData = {
-    //   email,
-    //   password,
-    // };
-    // dispatch(fetchRegistration(authData));
-    dispatch(fetchLogin(data));
-    console.log(data);
+    dispatch(fetchLogin(data)).then(() => {
+      dispatch(fetchArticles(0)).then(() => navigate('/articles'));
+    });
     dispatch(setsIsLoggedIn());
-    // console.log(authData);
     message.success('Welcome back!');
-    navigate('/articles');
   });
 
   return (

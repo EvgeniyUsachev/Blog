@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../type/hooks';
 import Article from '../Article/Article';

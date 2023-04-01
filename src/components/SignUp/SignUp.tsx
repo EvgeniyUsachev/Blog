@@ -1,8 +1,8 @@
 import React from 'react';
-import { useForm, Resolver } from 'react-hook-form';
-import { Link, redirect, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { fetchRegistration } from '../../store/userSlice';
+import { fetchRegistration, removeError } from '../../store/userSlice';
 import { useAppDispatch, useAppSelector } from '../type/hooks';
 
 import classes from './SignUp.module.scss';
@@ -15,33 +15,16 @@ type FormValues = {
   agreement: boolean;
 };
 
-// const resolver: Resolver<FormValues> = async (values) => {
-//   return {
-//     values: values.Username ? values : {},
-//     errors: !values.Username
-//       ? {
-//           Username: {
-//             type: 'required',
-//             message: 'This field is required.',
-//           },
-//         }
-//       : {},
-//   };
-// };
-
 const SignUp = () => {
   const dispatch = useAppDispatch();
-  const location = useLocation();
   const navigate = useNavigate();
 
   const error = useAppSelector((state) => state.user.error);
-  console.log(error);
 
   const {
     register,
     formState: { errors, isValid },
     handleSubmit,
-    reset,
     watch,
     setError,
   } = useForm<FormValues>({ mode: 'onBlur' });
@@ -55,6 +38,7 @@ const SignUp = () => {
     }
     if (error === 'none') {
       navigate('/articles');
+      dispatch(removeError());
     }
   }, [error]);
 
@@ -67,26 +51,6 @@ const SignUp = () => {
     };
 
     dispatch(fetchRegistration(authData));
-    // .then(() => {
-    console.log('fom then');
-    console.log('error in then', error);
-    // if (error === 'username') {
-    //   setError('username', { type: 'custom', message: 'Username is already taken' });
-    // }
-    // if (error === 'email') {
-    //   setError('email', { type: 'custom', message: 'email is already taken' });
-    // }
-    // })
-    // .catch((e) => {
-    //   console.log('from cathc', e);
-    //   setError('username', { type: 'custom', message: 'Already exists' });
-    //   setError('email', { type: 'custom', message: 'Already exists' });
-    // });
-
-    console.log(data);
-    console.log(authData);
-    // reset();
-    // navigate('/articles');
   });
 
   const password = watch('password');
@@ -132,7 +96,6 @@ const SignUp = () => {
                 value:
                   /^[a-z0-9-]+(\.[\w-]+)*@([a-z0-9-]+(\.[a-z0-9-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})(:\d{4})?$/g,
 
-                // value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
                 message: 'Email is not valid',
               },
             })}
@@ -156,10 +119,6 @@ const SignUp = () => {
                 value: 40,
                 message: 'Your password needs to be max 40 characters.',
               },
-              // pattern: {
-              //   value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-              //   message: 'Email is not valid',
-              // },
             })}
           ></input>
         </label>

@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 export const fetchRegistration = createAsyncThunk(
   'user/fetchRegistration',
@@ -19,18 +18,11 @@ export const fetchRegistration = createAsyncThunk(
         }
       );
       localStorage.setItem('token', response.data.user.token);
-      //   navigate('/articles');
 
       return response.data;
     } catch (error: any) {
-      console.log('error from slice', Object.entries(error.response.data.errors)[0][0]);
       return rejectWithValue(Object.entries(error.response.data.errors)[0][0]);
-      //   if (error.code === 'ERR_BAD_REQUEST') console.log('error from slice', error.response.data.errors);
     }
-
-    //   console.log(response);
-
-    //   return response.data;
   }
 );
 
@@ -41,7 +33,6 @@ export const fetchUser = createAsyncThunk('user/fetchUser', async () => {
       'Content-Type': 'application/json',
     },
   });
-  console.log('hello from fetch user', response.data);
   return response.data;
 });
 
@@ -57,40 +48,64 @@ export const fetchLogin = createAsyncThunk('user/fetchLogin', async (loginData: 
       },
     }
   );
-  console.log(response);
   localStorage.setItem('token', response.data.user.token);
 
   return response.data;
 });
 
-export const fetchUpdateProfile = createAsyncThunk('user/fetchUpdateProfile', async (authData: any) => {
-  const response = await axios.put(
-    'https://blog.kata.academy/api/user',
-    {
-      user: authData,
-    },
-    {
-      headers: {
-        Authorization: `Token ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-      },
+export const fetchUpdateProfile = createAsyncThunk(
+  'user/fetchUpdateProfile',
+  async (authData: any, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        'https://blog.kata.academy/api/user',
+        {
+          user: authData,
+        },
+        {
+          headers: {
+            Authorization: `Token ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log(response);
+      localStorage.setItem('token', response.data.user.token);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(Object.entries(error.response.data.errors)[0][0]);
     }
-  );
-  console.log(response);
-  localStorage.setItem('token', response.data.user.token);
-  return response.data;
-});
+  }
+);
+
+interface initialStateType {
+  user: {
+    email: string;
+    password: string;
+    username: string;
+    image?: string;
+  };
+  isLoggedIn: boolean;
+  userLoading: boolean;
+  error: string;
+}
+
+const initialState: initialStateType = {
+  user: {
+    email: '',
+    password: '',
+    username: '',
+    image: '',
+  },
+  isLoggedIn: false,
+  userLoading: false,
+  error: '',
+};
 
 const userSlice = createSlice({
   name: 'user',
-  initialState: {
-    user: {
-      //   username: 's',
-    },
-    isLoggedIn: false,
-    userLoading: false,
-    error: '',
-  },
+  initialState,
+
   reducers: {
     setsIsLoggedIn(state) {
       state.isLoggedIn = true;
@@ -98,7 +113,7 @@ const userSlice = createSlice({
     setsIsLoggedOut(state) {
       state.isLoggedIn = false;
     },
-    setError(state) {
+    removeError(state) {
       state.error = '';
     },
   },
@@ -107,7 +122,6 @@ const userSlice = createSlice({
       state.isLoggedIn = true;
       state.user = action.payload.user;
       state.error = 'none';
-      //   const navigate = useNavigate();
     });
     builder.addCase(fetchRegistration.rejected, (state, action: PayloadAction<any>) => {
       state.error = action.payload;
@@ -127,9 +141,13 @@ const userSlice = createSlice({
     });
     builder.addCase(fetchUpdateProfile.fulfilled, (state, action) => {
       state.user = action.payload.user;
+      state.error = 'none';
+    });
+    builder.addCase(fetchUpdateProfile.rejected, (state, action: PayloadAction<any>) => {
+      state.error = action.payload;
     });
   },
 });
 
-export const { setsIsLoggedIn, setsIsLoggedOut, setError } = userSlice.actions;
+export const { setsIsLoggedIn, setsIsLoggedOut, removeError } = userSlice.actions;
 export default userSlice.reducer;
