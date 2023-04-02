@@ -38,21 +38,28 @@ export const fetchUser = createAsyncThunk('user/fetchUser', async () => {
   return response.data;
 });
 
-export const fetchLogin = createAsyncThunk('user/fetchLogin', async (loginData: LoginDataType) => {
-  const response = await axios.post(
-    'https://blog.kata.academy/api/users/login',
-    {
-      user: loginData,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
+export const fetchLogin = createAsyncThunk('user/fetchLogin', async (loginData: LoginDataType, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(
+      'https://blog.kata.academy/api/users/login',
+      {
+        user: loginData,
       },
-    }
-  );
-  localStorage.setItem('token', response.data.user.token);
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    localStorage.setItem('token', response.data.user.token);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.log(Object.entries(error?.response?.data.errors)[0][0]);
+      return rejectWithValue(Object.entries(error?.response?.data.errors)[0][0]);
+    }
+  }
 });
 
 export const fetchUpdateProfile = createAsyncThunk(
@@ -140,6 +147,10 @@ const userSlice = createSlice({
     });
     builder.addCase(fetchLogin.fulfilled, (state, action) => {
       state.user = action.payload.user;
+      state.error = 'none';
+    });
+    builder.addCase(fetchLogin.rejected, (state, action: PayloadAction<any>) => {
+      state.error = action.payload;
     });
     builder.addCase(fetchUpdateProfile.fulfilled, (state, action) => {
       state.user = action.payload.user;

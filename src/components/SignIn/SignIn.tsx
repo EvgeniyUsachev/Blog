@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 
+import { removeError, fetchLogin, setsIsLoggedIn } from '../../store/userSlice';
 import { fetchArticles } from '../../store/articleSlice';
-import { fetchLogin, setsIsLoggedIn } from '../../store/userSlice';
-import { useAppDispatch } from '../type/hooks';
+import { useAppDispatch, useAppSelector } from '../type/hooks';
 
 import classes from './SignIn.module.scss';
 
@@ -18,20 +18,32 @@ const SignIn = () => {
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
+  const error = useAppSelector((state) => state.user.error);
 
   const {
     register,
     formState: { errors },
     handleSubmit,
+    setError,
   } = useForm<FormValues>({ mode: 'onBlur' });
 
   const onSubmit = handleSubmit((data) => {
-    dispatch(fetchLogin(data)).then(() => {
-      dispatch(fetchArticles(0)).then(() => navigate('/articles'));
-    });
-    dispatch(setsIsLoggedIn());
-    message.success('Welcome back!');
+    dispatch(fetchLogin(data));
   });
+
+  React.useEffect(() => {
+    if (error === 'email or password') {
+      setError('email', { type: 'custom', message: 'Email is nor registred' });
+      setError('password', { type: 'custom', message: 'Or password is wrong' });
+    }
+    if (error === 'none') {
+      dispatch(setsIsLoggedIn());
+      dispatch(fetchArticles(0)).then(() => navigate('/articles'));
+
+      dispatch(removeError());
+      message.success('Welcome back!');
+    }
+  }, [error]);
 
   return (
     <div className={classes.wrapper}>
