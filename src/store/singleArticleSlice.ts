@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+
+import { UpdatePostDataType, CreatePostDataType } from '../components/type/types';
 
 interface InitialStateType {
   article: {
@@ -12,21 +13,24 @@ interface InitialStateType {
   loading: boolean;
 }
 
-export const fetchCreatePost = createAsyncThunk('singleArticle/fetchCreatePost', async (authData: any) => {
-  const response = await axios.post(
-    'https://blog.kata.academy/api/articles',
-    {
-      article: authData,
-    },
-    {
-      headers: {
-        Authorization: `Token ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
+export const fetchCreatePost = createAsyncThunk(
+  'singleArticle/fetchCreatePost',
+  async (authData: CreatePostDataType) => {
+    const response = await axios.post(
+      'https://blog.kata.academy/api/articles',
+      {
+        article: authData,
       },
-    }
-  );
-  return response.data;
-});
+      {
+        headers: {
+          Authorization: `Token ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  }
+);
 
 export const fetchDeletePost = createAsyncThunk('singleArticle/fetchDeletepost', async (slug: string) => {
   const response = await axios.delete(
@@ -42,21 +46,24 @@ export const fetchDeletePost = createAsyncThunk('singleArticle/fetchDeletepost',
   return response.data;
 });
 
-export const fetchUpdatePost = createAsyncThunk('singleArticle/fetchUpdatePost', async (authData: any) => {
-  const response = await axios.put(
-    `https://blog.kata.academy/api/articles/${authData.slug}`,
-    {
-      article: authData.updateData,
-    },
-    {
-      headers: {
-        Authorization: `Token ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
+export const fetchUpdatePost = createAsyncThunk(
+  'singleArticle/fetchUpdatePost',
+  async (authData: UpdatePostDataType) => {
+    const response = await axios.put(
+      `https://blog.kata.academy/api/articles/${authData.slug}`,
+      {
+        article: authData.updateData,
       },
-    }
-  );
-  return response.data;
-});
+      {
+        headers: {
+          Authorization: `Token ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  }
+);
 
 export const fetchSetLike = createAsyncThunk('singleArticle/fetchSetLike', async (slug: string) => {
   const response = await axios.post(

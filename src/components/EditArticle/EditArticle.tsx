@@ -6,6 +6,7 @@ import { message } from 'antd';
 import { useAppDispatch, useAppSelector } from '../type/hooks';
 import { fetchUpdatePost } from '../../store/singleArticleSlice';
 import { fetchSoloArticle } from '../../store/articleSlice';
+import type { UpdatePostDataType } from '../type/types';
 
 import classes from './CreateArticle.module.scss';
 
@@ -61,7 +62,7 @@ const EditArticle = () => {
       return tagObj.tag;
     });
 
-    const authData = {
+    const authData: UpdatePostDataType = {
       updateData: {
         title: title,
         description: description,

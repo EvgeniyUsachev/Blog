@@ -5,6 +5,7 @@ import { message } from 'antd';
 
 import { fetchUpdateProfile, removeError } from '../../store/userSlice';
 import { useAppDispatch, useAppSelector } from '../type/hooks';
+import type { UserType } from '../type/types';
 
 import classes from './Profile.module.scss';
 
@@ -12,14 +13,23 @@ type FormValues = {
   username: string;
   email: string;
   password: string | number;
-  image: string;
+  image: string | null;
 };
+
+// export interface UserType {
+//   user: {
+//     email: string;
+//     password: string;
+//     username: string;
+//     image?: string;
+//   };
+// }
 
 const Profile = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const user: any = useAppSelector((state) => state.user.user);
+  const user: UserType = useAppSelector((state) => state.user.user);
 
   const error = useAppSelector((state) => state.user.error);
 
@@ -54,7 +64,11 @@ const Profile = () => {
   }, [error]);
 
   const onSubmit = handleSubmit((data) => {
-    const changedData = Object.fromEntries(Object.entries(data).filter(([key, value]) => value !== ''));
+    console.log(data);
+    const changedData = Object.fromEntries(
+      Object.entries(data).filter(([key, value]) => value !== '' && value !== null)
+    );
+    console.log('changed', changedData);
     dispatch(fetchUpdateProfile(changedData));
   });
 

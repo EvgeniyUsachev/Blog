@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+import type { ArticleType } from '../components/type/types';
+
 export const fetchArticles = createAsyncThunk('articles/fetchArticles', async (page: number) => {
   const response = await axios.get(`https://blog.kata.academy/api/articles?limit=5&offset=${page}`, {
     headers: {
@@ -22,22 +24,22 @@ export const fetchSoloArticle = createAsyncThunk('articles/fetchSoloArticle', as
   return response.data.article;
 });
 
-export interface ArticleType {
-  author: {
-    username: string;
-    image: string;
-    following: boolean;
-  };
-  body: string;
-  createdAt: string;
-  description: string;
-  favorited: boolean;
-  favoritesCount: number;
-  slug: string;
-  tagList: string[] | number[];
-  title: string;
-  updatedAt: string;
-}
+// export interface ArticleType {
+//   author: {
+//     username: string;
+//     image: string;
+//     following: boolean;
+//   };
+//   body: string;
+//   createdAt: string;
+//   description: string;
+//   favorited: boolean;
+//   favoritesCount: number;
+//   slug: string;
+//   tagList: string[] | number[];
+//   title: string;
+//   updatedAt: string;
+// }
 
 interface ArticlesState {
   articlesData: ArticleType[];
@@ -45,7 +47,7 @@ interface ArticlesState {
   loading: boolean;
   articleLoading: boolean;
   currentPage: number;
-  currentArticle: any /* | null */;
+  currentArticle: ArticleType /* | null */;
 }
 
 const initialState: ArticlesState = {
@@ -54,7 +56,22 @@ const initialState: ArticlesState = {
   loading: false,
   articleLoading: false,
   currentPage: 1,
-  currentArticle: {},
+  currentArticle: {
+    author: {
+      username: '',
+      image: '',
+      following: false,
+    },
+    body: '',
+    createdAt: '',
+    description: '',
+    favorited: false,
+    favoritesCount: 0,
+    slug: '',
+    tagList: [],
+    title: '',
+    updatedAt: '',
+  },
 };
 
 const articleSlice = createSlice({

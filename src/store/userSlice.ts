@@ -1,10 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+
+import type { AuthDataRegistrationType, LoginDataType, UpdateProfileDataType } from '../components/type/types';
 
 export const fetchRegistration = createAsyncThunk(
   'user/fetchRegistration',
-  async (authData: any, { rejectWithValue }) => {
+  async (authData: AuthDataRegistrationType, { rejectWithValue }) => {
     try {
       const response = await axios.post(
         'https://blog.kata.academy/api/users',
@@ -20,8 +22,8 @@ export const fetchRegistration = createAsyncThunk(
       localStorage.setItem('token', response.data.user.token);
 
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(Object.entries(error.response.data.errors)[0][0]);
+    } catch (error) {
+      if (error instanceof AxiosError) return rejectWithValue(Object.entries(error?.response?.data.errors)[0][0]);
     }
   }
 );
@@ -36,7 +38,7 @@ export const fetchUser = createAsyncThunk('user/fetchUser', async () => {
   return response.data;
 });
 
-export const fetchLogin = createAsyncThunk('user/fetchLogin', async (loginData: any) => {
+export const fetchLogin = createAsyncThunk('user/fetchLogin', async (loginData: LoginDataType) => {
   const response = await axios.post(
     'https://blog.kata.academy/api/users/login',
     {
@@ -55,7 +57,7 @@ export const fetchLogin = createAsyncThunk('user/fetchLogin', async (loginData: 
 
 export const fetchUpdateProfile = createAsyncThunk(
   'user/fetchUpdateProfile',
-  async (authData: any, { rejectWithValue }) => {
+  async (authData: UpdateProfileDataType, { rejectWithValue }) => {
     try {
       const response = await axios.put(
         'https://blog.kata.academy/api/user',
@@ -72,8 +74,8 @@ export const fetchUpdateProfile = createAsyncThunk(
       console.log(response);
       localStorage.setItem('token', response.data.user.token);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(Object.entries(error.response.data.errors)[0][0]);
+    } catch (error) {
+      if (error instanceof AxiosError) return rejectWithValue(Object.entries(error?.response?.data.errors)[0][0]);
     }
   }
 );

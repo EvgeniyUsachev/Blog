@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { fetchRegistration, removeError } from '../../store/userSlice';
 import { useAppDispatch, useAppSelector } from '../type/hooks';
+import type { AuthDataRegistrationType } from '../type/types';
 
 import classes from './SignUp.module.scss';
 
@@ -44,7 +45,7 @@ const SignUp = () => {
 
   const onSubmit = handleSubmit((data) => {
     const { username, email, password } = data;
-    const authData = {
+    const authData: AuthDataRegistrationType = {
       username,
       email,
       password,
