@@ -11,6 +11,7 @@ import { setsIsLoggedIn } from '../../store/userSlice';
 import Profile from '../Profile/Profile';
 import CreateArticle from '../CreateArticle/CreateArticle';
 import EditArticle from '../EditArticle/EditArticle';
+import NotFound from '../NotFound/NotFound';
 
 import classes from './App.module.scss';
 
@@ -35,6 +36,7 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="new-article" element={<CreateArticle />} />
           <Route path="articles/:slug/edit" element={<EditArticle />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </div>
