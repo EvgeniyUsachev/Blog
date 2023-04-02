@@ -22,6 +22,7 @@ const EditArticle = () => {
   const navigate = useNavigate();
 
   const currentArticle = useAppSelector((state) => state.article.currentArticle);
+  const username = useAppSelector((state) => state.user.user.username);
 
   const { slug } = useParams();
 
@@ -77,7 +78,7 @@ const EditArticle = () => {
     message.success('Article updated!');
   });
 
-  if (!localStorage.getItem('token')) {
+  if (!localStorage.getItem('token') || currentArticle?.author?.username !== username) {
     return <Navigate to="/sign-in" />;
   } else
     return (

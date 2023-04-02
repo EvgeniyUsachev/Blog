@@ -6,7 +6,6 @@ import { message, Popconfirm } from 'antd';
 
 import { fetchDeletePost, fetchSetLike, fetchRemoveLike } from '../../store/singleArticleSlice';
 import { useAppDispatch, useAppSelector } from '../type/hooks';
-import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
 
 import classes from './Article.module.scss';
 import './Ant.css';
@@ -73,18 +72,6 @@ const Article = () => {
   React.useEffect(() => {
     setChecked(currentArticle.favorited);
   }, []);
-
-  const imgLoaded = loadingImg ? (
-    <LoadingIndicator />
-  ) : (
-    <img
-      className={classes.user__avatar}
-      src={loadingImg ? 'https://cdn-icons-png.flaticon.com/512/147/147140.png' : currentArticle?.author?.image}
-      alt="user_avatar"
-      onLoad={() => setLoadingImg(false)}
-      onError={(e) => (e.currentTarget.src = 'https://cdn-icons-png.flaticon.com/512/147/147140.png')}
-    />
-  );
 
   return (
     <>
